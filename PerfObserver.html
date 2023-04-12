@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Performance Observer Playground</title>
+    <script>
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType === "paint" || entry.entryType === "mark") {
+            console.log(entry.name, entry.startTime);
+          } else {
+            console.log(entry.name, entry.duration);
+          }
+        }
+      });
+      observer.observe({ entryTypes: ["paint", "mark", "measure"] });
+    </script>
+  </head>
+
+  <body style="background-color: lightblue">
+    <script>
+      if (window.performance) {
+        performance.mark("kitty-img-start");
+      }
+    </script>
+    <img src="https://placekitten.com/100/100" />
+    <script>
+      if (window.performance) {
+        window.addEventListener("load", function () {
+          performance.mark("kitty-img-end");
+          performance.measure(
+            "img-load-time",
+            "kitty-img-start",
+            "kitty-img-end"
+          );
+        });
+      }
+    </script>
+  </body>
+</html>
