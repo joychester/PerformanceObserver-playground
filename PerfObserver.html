@@ -5,34 +5,206 @@
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === "paint" || entry.entryType === "mark") {
-            console.log(entry.name, entry.startTime);
+            console.log(
+              `${entry.entryType}-${entry.name}: ${parseInt(entry.startTime)}`
+            );
+          } else if (entry.entryType === "measure") {
+            // fetch duration property from "measure" entryType
+            console.log(
+              `${entry.entryType}-${entry.name}: ${parseInt(entry.duration)}`
+            );
           } else {
-            console.log(entry.name, entry.duration);
+            // fetch resource timing based on resource name
+            if (
+              entry.name.includes("/105") ||
+              entry.name.includes("?ajax=true")
+            ) {
+              console.log(
+                `${entry.name}: ${parseInt(entry.startTime)} -> ${parseInt(
+                  entry.duration
+                )}`
+              );
+            }
           }
         }
       });
-      observer.observe({ entryTypes: ["paint", "mark", "measure"] });
+      /* PerformanceObserver.supportedEntryTypes:
+              ["element",
+               "event",
+               "first-input",
+               "largest-contentful-paint",
+               "layout-shift",
+               "longtask",
+               "mark",
+               "measure",
+               "navigation",
+               "paint",
+               "resource"]
+      */
+      observer.observe({
+        entryTypes: ["paint", "mark", "measure", "resource"],
+      });
     </script>
   </head>
 
   <body style="background-color: lightblue">
     <script>
       if (window.performance) {
-        performance.mark("kitty-img-start");
+        performance.mark("kitty-imgs-start");
       }
     </script>
-    <img src="https://placekitten.com/100/100" />
+    <img src="https://placekitten.com/100/100" id="myImg1" />
+    <img src="https://placekitten.com/100/101" id="myImg2" />
     <script>
       if (window.performance) {
-        window.addEventListener("load", function () {
-          performance.mark("kitty-img-end");
+        performance.mark("kitty-img3-start");
+      }
+    </script>
+    <img src="https://placekitten.com/100/102" id="myImg3" />
+    <img src="https://placekitten.com/100/103" id="myImg4" />
+    <img src="https://placekitten.com/100/104" id="myImg5" />
+    <img
+      src="https://placekitten.com/100/105"
+      id="myImg6"
+      width="200"
+      height="200"
+    />
+    <script>
+      if (window.performance && window.performance.mark) {
+        const myImg1 = document.getElementById("myImg1");
+        const myImg2 = document.getElementById("myImg2");
+        const myImg3 = document.getElementById("myImg3");
+        const myImg4 = document.getElementById("myImg4");
+        const myImg5 = document.getElementById("myImg5");
+        const myImg6 = document.getElementById("myImg6");
+
+        myImg1.addEventListener("load", function () {
+          performance.mark("kitty-img1-loaded");
+        });
+        myImg2.addEventListener("load", function () {
+          performance.mark("kitty-img2-loaded");
+        });
+        myImg3.addEventListener("load", function () {
+          performance.mark("kitty-img3-loaded");
           performance.measure(
-            "img-load-time",
-            "kitty-img-start",
-            "kitty-img-end"
+            "until-myImg3-loaded",
+            "kitty-imgs-start",
+            "kitty-img3-loaded"
+          );
+          performance.measure(
+            "myImg3-loaded-time",
+            "kitty-img3-start",
+            "kitty-img3-loaded"
           );
         });
+        myImg4.addEventListener("load", function () {
+          performance.mark("kitty-img4-loaded");
+        });
+        myImg5.addEventListener("load", function () {
+          performance.mark("kitty-img5-loaded");
+        });
+        myImg6.addEventListener("load", function () {
+          performance.mark("kitty-img6-loaded");
+        });
+
+        window.addEventListener("load", function () {
+          performance.mark("kitty-imgs-loaded");
+          performance.measure(
+            "imgs-load-time",
+            "kitty-imgs-start",
+            "kitty-imgs-loaded"
+          );
+
+          setTimeout(() => {
+            // Fetch LCP Metrics
+            const lcp_observer = new PerformanceObserver((list) => {
+              const entries = list.getEntries();
+              const lastEntry = entries[entries.length - 1];
+              console.log("LCP:", parseInt(lastEntry.startTime));
+            });
+            lcp_observer.observe({
+              type: "largest-contentful-paint",
+              buffered: true,
+            });
+
+            // Fetch TBT Metrics
+            const tbt_observer = new PerformanceObserver((list) => {
+              let totalBlockingTime = 0;
+              for (const entry of list.getEntries()) {
+                totalBlockingTime += entry.duration - 50;
+              }
+              console.log("TBT:", parseInt(totalBlockingTime));
+            });
+            tbt_observer.observe({
+              // Long-task threshold is 50ms
+              type: "longtask",
+              buffered: true,
+            });
+          }, "500");
+        });
       }
+    </script>
+
+    <div id="imageContainer">
+      <a href="#" id="fetchImageLink">Fetch Another Kitty Image</a>
+    </div>
+    <script>
+      // Add click event listener to the link
+      document
+        .getElementById("fetchImageLink")
+        .addEventListener("click", function (event) {
+          console.log(`Link clicked at: ${Date.now()}`);
+          event.preventDefault(); // Prevent link from navigating
+
+          // Make an AJAX call to fetch the image
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "GET",
+            `https://placekitten.com/100/1${
+              Math.floor(Math.random() * (20 - 10 + 1)) + 10
+            }?ajax=true`,
+            true
+          );
+          xhr.responseType = "blob";
+
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              const blob = xhr.response;
+              const imageUrl = URL.createObjectURL(blob);
+
+              // Create an image element and set its source to the fetched image
+              const imgElement = document.createElement("img");
+              imgElement.src = imageUrl;
+              imgElement.width = 100;
+              imgElement.height = 100;
+
+              // Append the image element to the image container
+              const imageContainer = document.getElementById("imageContainer");
+              imageContainer.innerHTML = "";
+              imageContainer.appendChild(imgElement);
+            }
+          };
+
+          xhr.send();
+        });
+    </script>
+    <script>
+      function startLongRunningTaskExecution() {
+        const start_time = performance.now();
+        // Simulate long-running execution with a loop and block load event
+        const iterations = 300000000; // Large number of iterations
+        for (let i = 0; i < iterations; i++) {
+          // Simulated long-running code
+          // on Mac M1 Chip 300000000 iterations ~= 150ms
+        }
+
+        console.log(
+          `long running JS execution in function duration: ${
+            performance.now() - start_time
+          }`
+        );
+      }
+      startLongRunningTaskExecution();
     </script>
   </body>
 </html>
