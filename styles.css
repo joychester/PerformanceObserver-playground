@@ -1,0 +1,11 @@
+img.stamp-border {
+  border: 2px solid #ff9900; /* Border color */
+  border-radius: 20px; /* Border corner radius */
+  padding: 5px; /* Padding around the image */
+  box-shadow: 0px 0px 10px #ff9900; /* Shadow around the image */
+  display: inline-block; /* Display images as inline blocks */
+}
+
+a {
+  font-family: "Verdana, sans-serif";
+}
