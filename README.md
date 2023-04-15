@@ -1,4 +1,6 @@
 # PerformanceObserver-playground
 PerformanceObserver playground
 
-Learn page performance analysis by Chrome Devtools and PerformanceObserver 
+You can open Chrome Devtools to monitoring and profiling the page, also open the console to look at the key perf logs I have printed out:
+![Chrome DevTools Console logs](chromeDevTools_console.png)
+![Chrome DevTools Performance Profiling](chromeDevTools_profiling.png)
