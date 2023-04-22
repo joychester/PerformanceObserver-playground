@@ -9,3 +9,9 @@ img.stamp-border {
 a {
   font-family: "Verdana, sans-serif";
 }
+
+.bordered {
+  border: 3px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}

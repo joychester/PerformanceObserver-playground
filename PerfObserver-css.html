@@ -9,9 +9,15 @@
             console.log(
               `${entry.entryType}-${entry.name}: ${parseInt(entry.startTime)}`
             );
+            outputMessage(
+              `${entry.entryType}-${entry.name}: ${parseInt(entry.startTime)}`
+            );
           } else if (entry.entryType === "measure") {
             // fetch duration property from "measure" entryType
             console.log(
+              `${entry.entryType}-${entry.name}: ${parseInt(entry.duration)}`
+            );
+            outputMessage(
               `${entry.entryType}-${entry.name}: ${parseInt(entry.duration)}`
             );
           } else {
@@ -21,6 +27,11 @@
               entry.name.includes("?ajax=true")
             ) {
               console.log(
+                `${entry.name}: ${parseInt(entry.startTime)} -> ${parseInt(
+                  entry.duration
+                )}`
+              );
+              outputMessage(
                 `${entry.name}: ${parseInt(entry.startTime)} -> ${parseInt(
                   entry.duration
                 )}`
@@ -49,6 +60,20 @@
   </head>
 
   <body style="background-color: lightblue">
+    <script>
+      // Define the outputMessage function in the global scope
+      function outputMessage(message) {
+        // Get a reference to the output element
+        const output = document.getElementById("output");
+
+        // Create a new paragraph element to display the message
+        const p = document.createElement("p");
+        p.textContent = message;
+
+        // Append the paragraph element to the output element
+        output.appendChild(p);
+      }
+    </script>
     <script>
       if (window.performance) {
         performance.mark("kitty-imgs-start");
@@ -143,6 +168,7 @@
               const entries = list.getEntries();
               const lastEntry = entries[entries.length - 1];
               console.log("LCP: ", parseInt(lastEntry.startTime));
+              outputMessage(`LCP: ${parseInt(lastEntry.startTime)}`);
             });
             lcp_observer.observe({
               type: "largest-contentful-paint",
@@ -156,6 +182,7 @@
                 totalBlockingTime += entry.duration - 50;
               }
               console.log("TBT: ", parseInt(totalBlockingTime));
+              outputMessage(`TBT: ${parseInt(totalBlockingTime)}`);
             });
             tbt_observer.observe({
               // Long-task threshold is 50ms
@@ -172,9 +199,13 @@
                   console.log(
                     `Layout Shift start at: ${parseInt(entry.startTime)}ms`
                   );
+                  outputMessage(
+                    `Layout Shift start at: ${parseInt(entry.startTime)}ms`
+                  );
                 }
               }
               console.log("CLS: ", totalLayoutShiftValue.toFixed(4));
+              outputMessage(`CLS: ${totalLayoutShiftValue.toFixed(4)}`);
             });
             cls_observer.observe({
               type: "layout-shift",
@@ -194,6 +225,7 @@
         .getElementById("fetchImageLink")
         .addEventListener("click", function (event) {
           console.log(`Link clicked at: ${Date.now()}`);
+          outputMessage(`Link clicked at: ${Date.now()}`);
           event.preventDefault(); // Prevent link from navigating
 
           // Make an AJAX call to fetch the image
@@ -239,5 +271,7 @@
 
       document.body.appendChild(script);
     </script>
+    <br />
+    <div id="output" class="bordered"></div>
   </body>
 </html>

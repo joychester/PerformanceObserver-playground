@@ -14,6 +14,11 @@ function startLongRunningTaskExecution() {
         performance.now() - start_time
       }`
     );
+    outputMessage(
+      `long running JS execution in function duration: ${
+        performance.now() - start_time
+      }`
+    );
   }
 
 startLongRunningTaskExecution();
