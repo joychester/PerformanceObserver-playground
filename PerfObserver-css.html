@@ -155,6 +155,11 @@
         });
 
         window.addEventListener("load", function () {
+          const domContentLoadedEnd = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+          const domLoadEventStart = performance.timing.loadEventStart - performance.timing.navigationStart;
+          console.log("DomContentLoadedEnd: ", parseInt(domContentLoadedEnd));
+          outputMessage(`DomLoadEventStart: ${parseInt(domLoadEventStart)}`);
+
           performance.mark("kitty-imgs-loaded");
           performance.measure(
             "imgs-load-time",
