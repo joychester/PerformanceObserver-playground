@@ -6,17 +6,11 @@
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.entryType === "paint" || entry.entryType === "mark") {
-            console.log(
-              `${entry.entryType}-${entry.name}: ${parseInt(entry.startTime)}`
-            );
             outputMessage(
               `${entry.entryType}-${entry.name}: ${parseInt(entry.startTime)}`
             );
           } else if (entry.entryType === "measure") {
             // fetch duration property from "measure" entryType
-            console.log(
-              `${entry.entryType}-${entry.name}: ${parseInt(entry.duration)}`
-            );
             outputMessage(
               `${entry.entryType}-${entry.name}: ${parseInt(entry.duration)}`
             );
@@ -26,11 +20,6 @@
               entry.name.includes("/105") ||
               entry.name.includes("?ajax=true")
             ) {
-              console.log(
-                `${entry.name}: ${parseInt(entry.startTime)} -> ${parseInt(
-                  entry.duration
-                )}`
-              );
               outputMessage(
                 `${entry.name}: ${parseInt(entry.startTime)} -> ${parseInt(
                   entry.duration
@@ -56,6 +45,20 @@
       observer.observe({
         entryTypes: ["paint", "mark", "measure", "resource"],
       });
+      const firstInputObserver = new PerformanceObserver((entryList) => {
+        for (const entry of entryList.getEntries()) {
+          const delay = entry.processingStart - entry.startTime;
+          outputMessage(
+            `FID candidate: ${entry.name}, ${parseInt(
+              entry.startTime
+            )}, ${parseInt(delay)}(/150ms), ${parseInt(entry.processingStart)}`
+          );
+        }
+      });
+      firstInputObserver.observe({
+        type: "first-input",
+        buffered: true,
+      });
     </script>
   </head>
 
@@ -63,6 +66,7 @@
     <script>
       // Define the outputMessage function in the global scope
       function outputMessage(message) {
+        console.log(message);
         // Get a reference to the output element
         const output = document.getElementById("output");
 
@@ -157,7 +161,6 @@
         window.addEventListener("load", function () {
           const domContentLoadedEnd = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
           const domLoadEventStart = performance.timing.loadEventStart - performance.timing.navigationStart;
-          console.log("DomContentLoadedEnd: ", parseInt(domContentLoadedEnd));
           outputMessage(`DomLoadEventStart: ${parseInt(domLoadEventStart)}`);
 
           performance.mark("kitty-imgs-loaded");
@@ -172,7 +175,6 @@
             const lcp_observer = new PerformanceObserver((list) => {
               const entries = list.getEntries();
               const lastEntry = entries[entries.length - 1];
-              console.log("LCP: ", parseInt(lastEntry.startTime));
               outputMessage(`LCP: ${parseInt(lastEntry.startTime)}`);
             });
             lcp_observer.observe({
@@ -186,7 +188,6 @@
               for (const entry of list.getEntries()) {
                 totalBlockingTime += entry.duration - 50;
               }
-              console.log("TBT: ", parseInt(totalBlockingTime));
               outputMessage(`TBT: ${parseInt(totalBlockingTime)}`);
             });
             tbt_observer.observe({
@@ -201,15 +202,11 @@
               for (const entry of list.getEntries()) {
                 if (!entry.hadRecentInput) {
                   totalLayoutShiftValue += entry.value;
-                  console.log(
-                    `Layout Shift start at: ${parseInt(entry.startTime)}ms`
-                  );
                   outputMessage(
                     `Layout Shift start at: ${parseInt(entry.startTime)}ms`
                   );
                 }
               }
-              console.log("CLS: ", totalLayoutShiftValue.toFixed(4));
               outputMessage(`CLS: ${totalLayoutShiftValue.toFixed(4)}`);
             });
             cls_observer.observe({
@@ -229,7 +226,6 @@
       document
         .getElementById("fetchImageLink")
         .addEventListener("click", function (event) {
-          console.log(`Link clicked at: ${Date.now()}`);
           outputMessage(`Link clicked at: ${Date.now()}`);
           event.preventDefault(); // Prevent link from navigating
 
