@@ -114,6 +114,7 @@
       width="200"
       height="200"
       class="stamp-border"
+      elementtiming='largest-image'
     />
     <script>
       if (window.performance && window.performance.mark) {
@@ -216,7 +217,7 @@
     </script>
 
     <div id="imageContainer">
-      <a href="#" id="fetchImageLink">Fetch Another Kitty Image</a>
+      <a href="#" id="fetchImageLink"><p elementtiming='fetchImageLink'>Fetch Another Kitty Image</p></a>
     </div>
     <script>
       // Add click event listener to the link
@@ -269,6 +270,16 @@
       }
 
       document.body.appendChild(script);
+    </script>
+    <script>
+      const observer_elementTiming = new PerformanceObserver((list) => {
+        let perfEntries = list.getEntries();
+        // Process the entries by iterating over them.
+        perfEntries.forEach(elemEntry => {
+          console.log(`ElementTiming: <${elemEntry.identifier}> --> ${elemEntry.loadTime.toFixed(0)}`);
+        })
+      });
+      observer_elementTiming.observe({type: 'element', buffered: true});
     </script>
     <br />
     <div id="output" class="bordered"></div>
