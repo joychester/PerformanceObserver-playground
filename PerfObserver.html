@@ -276,7 +276,7 @@
         let perfEntries = list.getEntries();
         // Process the entries by iterating over them.
         perfEntries.forEach(elemEntry => {
-          console.log(`ElementTiming: <${elemEntry.identifier}> --> ${elemEntry.loadTime.toFixed(0)}`);
+          outputMessage(`ElementTiming: <${elemEntry.identifier}> --> ${elemEntry.loadTime.toFixed(0)}`);
         })
       });
       observer_elementTiming.observe({type: 'element', buffered: true});
